@@ -3,14 +3,29 @@ describe ::Nexmos do
   subject{ ::Nexmos }
 
   before(:each) do
-    subject.reset!
+    described_class.reset!
   end
 
   context '#reset!' do
-    its(:user_agent) { should == "Nexmos v#{::Nexmos::VERSION}" }
-    its(:api_key) { should be_nil }
-    its(:api_secret) { should be_nil }
-    its(:logger) { should be_kind_of(::Logger) }
+    describe '#user_agent' do
+      subject { super().user_agent }
+      it { is_expected.to eq("Nexmos v#{::Nexmos::VERSION}") }
+    end
+
+    describe '#api_key' do
+      subject { super().api_key }
+      it { is_expected.to be_nil }
+    end
+
+    describe '#api_secret' do
+      subject { super().api_secret }
+      it { is_expected.to be_nil }
+    end
+
+    describe '#logger' do
+      subject { super().logger }
+      it { is_expected.to be_kind_of(::Logger) }
+    end
   end
 
   context '#setup' do
@@ -20,7 +35,7 @@ describe ::Nexmos do
         subject.setup do |c|
           c.user_agent = 'Test1245'
         end
-        subject.user_agent.should == 'Test1245'
+        expect(subject.user_agent).to eq('Test1245')
       end
 
       it 'should set logger' do
@@ -28,21 +43,21 @@ describe ::Nexmos do
         subject.setup do |c|
           c.logger = newlogger
         end
-        subject.logger.should == newlogger
+        expect(subject.logger).to eq(newlogger)
       end
 
       it 'should set api_key' do
         subject.setup do |c|
           c.api_key = 'test-api-key'
         end
-        subject.api_key.should == 'test-api-key'
+        expect(subject.api_key).to eq('test-api-key')
       end
 
       it 'should set api_secret' do
         subject.setup do |c|
           c.api_secret = 'test-api-secret'
         end
-        subject.api_secret.should == 'test-api-secret'
+        expect(subject.api_secret).to eq('test-api-secret')
       end
 
     end
@@ -55,7 +70,7 @@ describe ::Nexmos do
         subject.setup do |c|
           c.api_key = 'test-api-key2'
         end
-        subject.api_key.should == 'test-api-key'
+        expect(subject.api_key).to eq('test-api-key')
       end
     end
   end

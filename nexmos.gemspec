@@ -18,7 +18,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency('rash')
   gem.add_dependency('faraday')
   gem.add_dependency('faraday_middleware')
-  gem.add_dependency('activesupport', '>= 3.0.0')
-  gem.add_development_dependency('rspec')
+  gem.add_dependency('activesupport', '>= 3.0', '<= 5.0')
+  gem.add_development_dependency('rspec', '>= 3.0')
   gem.add_development_dependency('webmock')
 end

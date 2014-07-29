@@ -5,6 +5,5 @@ gemspec
 group :development, :test do
   gem 'pry'
   gem 'rake'
-  gem 'webmock'
   gem 'coveralls', require: false
 end

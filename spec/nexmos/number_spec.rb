@@ -74,13 +74,13 @@ describe ::Nexmos::Number do
       request = stub_request(:get, "https://rest.nexmo.com/number/search?api_key=default_key&api_secret=default_secret&country=FI").
           with(webmock_default_headers).to_return(:status => 200, :body => finland_numbers_search, :headers => {})
       res = subject.search(:country => 'FI')
-      res.should be_kind_of(::Hash)
-      res.success?.should be_true
-      res['count'].should == 22
-      res['numbers'].should be_kind_of(::Array)
-      res['numbers'].size.should == 10
-      res['numbers'].first.keys.sort.should == ["cost", "country", "msisdn", "type"]
-      request.should have_been_made.once
+      expect(res).to be_kind_of(::Hash)
+      expect(res.success?).to be_truthy
+      expect(res['count']).to eq(22)
+      expect(res['numbers']).to be_kind_of(::Array)
+      expect(res['numbers'].size).to eq(10)
+      expect(res['numbers'].first.keys.sort).to eq(["cost", "country", "msisdn", "type"])
+      expect(request).to have_been_made.once
     end
   end
 
@@ -99,9 +99,9 @@ describe ::Nexmos::Number do
           :body => {"api_key"=>"default_key", "api_secret"=>"default_secret", "country"=>"FI", "msisdn"=>"3584573950816"}
         ).to_return(:status => 200, :body => "", :headers => {})
       res = subject.buy(:country => 'FI', :msisdn => '3584573950816' )
-      res.should be_kind_of(::Hash)
-      res.success?.should be_true
-      request.should have_been_made.once
+      expect(res).to be_kind_of(::Hash)
+      expect(res.success?).to be_truthy
+      expect(request).to have_been_made.once
     end
 
   end

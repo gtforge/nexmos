@@ -26,8 +26,15 @@ describe ::Nexmos::Base do
       }
     end
 
-    its(:faraday_options) { should == default_faraday_options }
-    its(:connection) { should be_kind_of(::Faraday::Connection) }
+    describe '#faraday_options' do
+      subject { super().faraday_options }
+      it { is_expected.to eq(default_faraday_options) }
+    end
+
+    describe '#connection' do
+      subject { super().connection }
+      it { is_expected.to be_kind_of(::Faraday::Connection) }
+    end
 
     context 'faraday_options' do
       it 'should have custom user agent' do
@@ -35,14 +42,14 @@ describe ::Nexmos::Base do
           c.user_agent = 'test user agent'
         end
         default_faraday_options[:headers][:user_agent] = 'test user agent'
-        subject.faraday_options.should == default_faraday_options
+        expect(subject.faraday_options).to eq(default_faraday_options)
       end
     end
 
     context 'define_api_calls' do
       it 'should call define_method' do
         ::Nexmos.apis[:account].keys.each do |k|
-          subject.should_receive(:define_method).with(k)
+          expect(subject).to receive(:define_method).with(k)
         end
         subject.define_api_calls(:account)
       end
@@ -50,7 +57,7 @@ describe ::Nexmos::Base do
       it 'should define dynamic method and call make_api_call inside' do
         subject.define_api_calls(:account)
         instance = subject.new('test_key', 'test_secret')
-        instance.should_receive(:make_api_call).with(::Nexmos.apis[:account][:get_balance], {})
+        expect(instance).to receive(:make_api_call).with(::Nexmos.apis[:account][:get_balance], {})
         instance.get_balance
       end
     end
@@ -72,15 +79,18 @@ describe ::Nexmos::Base do
           c.api_secret = 'default_secret'
         end
         instance = ::Nexmos::Base.new
-        instance.instance_variable_get('@default_params').should == {'api_key' => 'default_key', 'api_secret' => 'default_secret'}
+        expect(instance.instance_variable_get('@default_params')).to eq({'api_key' => 'default_key', 'api_secret' => 'default_secret'})
       end
       it 'should set default_params with custom api key and secret' do
         instance = ::Nexmos::Base.new('test_key', 'test_secret')
-        instance.instance_variable_get('@default_params').should == {'api_key' => 'test_key', 'api_secret' => 'test_secret'}
+        expect(instance.instance_variable_get('@default_params')).to eq({'api_key' => 'test_key', 'api_secret' => 'test_secret'})
       end
     end
 
-    its(:connection) { should be_kind_of(::Faraday::Connection) }
+    describe '#connection' do
+      subject { super().connection }
+      it { is_expected.to be_kind_of(::Faraday::Connection) }
+    end
 
     context 'make_api_call' do
 
@@ -106,7 +116,7 @@ describe ::Nexmos::Base do
       end
 
       it 'should call check_required_params' do
-        subject.should_receive(:check_required_params)
+        expect(subject).to receive(:check_required_params)
         subject.make_api_call(api_params_with_required)
       end
 
@@ -119,7 +129,7 @@ describe ::Nexmos::Base do
       end
 
       it 'should call normalize_params' do
-        subject.should_receive(:normalize_params).and_call_original
+        expect(subject).to receive(:normalize_params).and_call_original
         subject.make_api_call(api_params_without_required)
       end
 
@@ -127,7 +137,7 @@ describe ::Nexmos::Base do
         stub_request(:get, "https://rest.nexmo.com/test/url?api_key=test_api&api_secret=test_secret&test_call=value").
                  with(webmock_default_headers).
                  to_return(:status => 200, :body => {}, :headers => {})
-        subject.should_not_receive(:camelize_params)
+        expect(subject).not_to receive(:camelize_params)
         subject.make_api_call(api_params_without_required, {'test_call' => 'value'})
       end
 
@@ -135,7 +145,7 @@ describe ::Nexmos::Base do
         stub_request(:get, "https://rest.nexmo.com/test/url?api_key=test_api&api_secret=test_secret&testCall=value").
                  with(webmock_default_headers).
                  to_return(:status => 200, :body => {}, :headers => {})
-        subject.should_receive(:camelize_params).and_call_original
+        expect(subject).to receive(:camelize_params).and_call_original
         subject.make_api_call(api_params_without_required.merge(:camelize => true), {'test_call' => 'value'})
       end
 
@@ -143,28 +153,28 @@ describe ::Nexmos::Base do
         stub_request(:get, "https://rest.nexmo.com/test/url?api_key=test_api&api_secret=test_secret").
                  with(webmock_default_headers).
                  to_return(:status => 200, :body => {}, :headers => {})
-        subject.should_receive(:get_response).and_call_original
+        expect(subject).to receive(:get_response).and_call_original
         subject.make_api_call(api_params_without_required)
       end
 
       it 'should return hash' do
-        subject.make_api_call(api_params_without_required).should be_a_kind_of(::Hash)
+        expect(subject.make_api_call(api_params_without_required)).to be_a_kind_of(::Hash)
       end
 
       it 'should return Hashie::Mash' do
-        subject.make_api_call(api_params_without_required).should be_a_kind_of(::Hashie::Mash)
+        expect(subject.make_api_call(api_params_without_required)).to be_a_kind_of(::Hashie::Mash)
       end
 
       it 'should respond to success? method in result' do
-        subject.make_api_call(api_params_without_required).should respond_to(:success?)
+        expect(subject.make_api_call(api_params_without_required)).to respond_to(:success?)
       end
 
       it 'should have success? key in hash' do
-        subject.make_api_call(api_params_without_required)[:success?].should be
+        expect(subject.make_api_call(api_params_without_required)[:success?]).to be
       end
 
       it 'should have success? == true' do
-        subject.make_api_call(api_params_without_required)[:success?].should be_true
+        expect(subject.make_api_call(api_params_without_required)[:success?]).to be_truthy
       end
 
       it 'should have success? == false on response with status != 200' do
@@ -172,9 +182,9 @@ describe ::Nexmos::Base do
                  with(webmock_default_headers).
                  to_return(:status => 410, :body => {}, :headers => {})
         res = subject.make_api_call(api_params_without_required.merge(:camelize => true), {'test_call' => 'value'})
-        res[:success?].should be_false
-        res[:failed?].should be_false
-        res[:not_authorized?].should be_false
+        expect(res[:success?]).to be_falsey
+        expect(res[:failed?]).to be_falsey
+        expect(res[:not_authorized?]).to be_falsey
       end
 
       it 'should have not_authorized? == true' do
@@ -182,9 +192,9 @@ describe ::Nexmos::Base do
                  with(webmock_default_headers).
                  to_return(:status => 401, :body => {}, :headers => {})
         res = subject.make_api_call(api_params_without_required.merge(:camelize => true), {'test_call' => 'value'})
-        res[:success?].should be_false
-        res[:not_authorized?].should be_true
-        res[:failed?].should be_false
+        expect(res[:success?]).to be_falsey
+        expect(res[:not_authorized?]).to be_truthy
+        expect(res[:failed?]).to be_falsey
       end
 
       it 'should have failed? == true' do
@@ -192,9 +202,9 @@ describe ::Nexmos::Base do
                  with(webmock_default_headers).
                  to_return(:status => 420, :body => {}, :headers => {})
         res = subject.make_api_call(api_params_without_required.merge(:camelize => true), {'test_call' => 'value'})
-        res[:success?].should be_false
-        res[:not_authorized?].should be_false
-        res[:failed?].should be_true
+        expect(res[:success?]).to be_falsey
+        expect(res[:not_authorized?]).to be_falsey
+        expect(res[:failed?]).to be_truthy
       end
 
     end
