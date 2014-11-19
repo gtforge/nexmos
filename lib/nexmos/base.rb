@@ -1,11 +1,10 @@
 module Nexmos
   class Base
-
     def initialize(key = ::Nexmos.api_key, secret = ::Nexmos.api_secret)
-      raise 'api_key should be set' if !key.present?
-      raise 'api_secret should be set' if !secret.present?
+      fail 'api_key should be set' unless key.present?
+      fail 'api_secret should be set' unless secret.present?
       @default_params = {
-        'api_key' => key,
+        'api_key'    => key,
         'api_secret' => secret
       }
     end
@@ -24,23 +23,23 @@ module Nexmos
 
     def get_response(args, params)
       method = args[:method]
-      url = args[:url]
-      raise 'url or method params missing' if !method.present? || !url.present?
+      url    = args[:url]
+      fail 'url or method params missing' if !method.present? || !url.present?
       res = connection.__send__(method, url, params)
       if res.success?
         data = if res.body.is_a?(::Hash)
                  res.body.merge(:success? => true)
                else
-                 ::Hashie::Mash.new({:success? => true})
+                 ::Hashie::Mash.new(:success? => true)
                end
         return data
       end
-      failed_res = ::Hashie::Mash.new({:success? => false, :not_authorized? => false, :failed? => false})
+      failed_res = ::Hashie::Mash.new(:success? => false, :not_authorized? => false, :failed? => false)
       case res.status
       when 401
-       failed_res.merge! :not_authorized? => true
+        failed_res.merge! :not_authorized? => true
       when 420
-       failed_res.merge! :failed? => true
+        failed_res.merge! :failed? => true
       end
       failed_res
     end
@@ -51,7 +50,7 @@ module Nexmos
 
     def camelize_params(params)
       if params.respond_to?(:transform_keys!)
-        params.transform_keys!{|key| key.camelize(:lower)}
+        params.transform_keys! { |key| key.camelize(:lower) }
       else
         params.keys.each do |key|
           params[key.camelize(:lower)] = params.delete(key)
@@ -60,19 +59,16 @@ module Nexmos
     end
 
     def check_required_params(args, params)
-      if args[:required]
-        required = params.slice(*args[:required])
-        unless required.keys.sort == args[:required].sort
-          missed = (args[:required] - required.keys).join(',')
-          raise ArgumentError, "#{missed} params required"
-        end
-      end
+      return unless args[:required]
+      required = params.slice(*args[:required])
+      return if required.keys.sort == args[:required].sort
+      missed = (args[:required] - required.keys).join(',')
+      fail ArgumentError, "#{missed} params required"
     end
 
     class << self
-
       def define_api_calls(key)
-        ::Nexmos.apis[key].each do |k,v|
+        ::Nexmos.apis[key].each do |k, v|
           define_method(k) do |*args|
             params = args[0] || {}
             make_api_call(v, params)
@@ -82,20 +78,20 @@ module Nexmos
 
       def faraday_options
         {
-          :url => 'https://rest.nexmo.com',
-          :headers => {
-            :accept =>  'application/json',
-            :user_agent => ::Nexmos.user_agent
+          url:     'https://rest.nexmo.com',
+          headers: {
+            accept:     'application/json',
+            user_agent: ::Nexmos.user_agent
           }
         }
       end
 
       def connection
         @connection ||= Faraday::Connection.new(faraday_options) do |conn|
-          conn.request  :url_encoded
-          conn.response :rashify
-          conn.response :json, :content_type => /\bjson$/
-          conn.adapter  Faraday.default_adapter
+          conn.request :url_encoded
+          conn.response :mashrashify
+          conn.response :json, content_type: /\bjson$/
+          conn.adapter Faraday.default_adapter
         end
       end
     end # self

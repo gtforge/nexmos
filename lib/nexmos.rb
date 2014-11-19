@@ -2,6 +2,7 @@ require 'logger'
 require 'active_support/core_ext/hash'
 require 'faraday'
 require 'faraday_middleware'
+require 'faraday_middleware/response/mashrashify'
 require 'nexmos/version'
 require 'nexmos/base'
 module Nexmos

@@ -2,63 +2,65 @@ require 'spec_helper'
 describe ::Nexmos::Number do
   let(:webmock_default_headers) do
     {
-        :headers => {
-            'Accept' => 'application/json',
-            'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-            'User-Agent' => ::Nexmos.user_agent
-        }
+      :headers => {
+        'Accept'          => 'application/json',
+        'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+        'User-Agent'      => ::Nexmos.user_agent
+      }
     }
   end
 
   let(:finland_numbers_search) do
-    {"numbers" => [
-      {"type" => "mobile-lvn",
-       "msisdn" => "3584573950816",
-       "country" => "FI",
-       "cost" => "3.00"},
-      {"type" => "mobile-lvn",
-       "msisdn" => "3584573950815",
-       "country" => "FI",
-       "cost" => "3.00"},
-      {"type" => "mobile-lvn",
-       "msisdn" => "3584573950814",
-       "country" => "FI",
-       "cost" => "3.00"},
-      {"type" => "mobile-lvn",
-       "msisdn" => "3584573950813",
-       "country" => "FI",
-       "cost" => "3.00"},
-      {"type" => "mobile-lvn",
-       "msisdn" => "3584573950812",
-       "country" => "FI",
-       "cost" => "3.00"},
-      {"type" => "mobile-lvn",
-       "msisdn" => "3584573950806",
-       "country" => "FI",
-       "cost" => "3.00"},
-      {"type" => "mobile-lvn",
-       "msisdn" => "3584573950805",
-       "country" => "FI",
-       "cost" => "3.00"},
-      {"type" => "mobile-lvn",
-       "msisdn" => "3584573950804",
-       "country" => "FI",
-       "cost" => "3.00"},
-      {"type" => "mobile-lvn",
-       "msisdn" => "3584573950798",
-       "country" => "FI",
-       "cost" => "3.00"},
-      {"type" => "mobile-lvn",
-       "msisdn" => "3584573950796",
-       "country" => "FI",
-       "cost" => "3.00"}],
-     "count" => 22}
+    {
+      "numbers" => [
+        { "type"    => "mobile-lvn",
+          "msisdn"  => "3584573950816",
+          "country" => "FI",
+          "cost"    => "3.00" },
+        { "type"    => "mobile-lvn",
+          "msisdn"  => "3584573950815",
+          "country" => "FI",
+          "cost"    => "3.00" },
+        { "type"    => "mobile-lvn",
+          "msisdn"  => "3584573950814",
+          "country" => "FI",
+          "cost"    => "3.00" },
+        { "type"    => "mobile-lvn",
+          "msisdn"  => "3584573950813",
+          "country" => "FI",
+          "cost"    => "3.00" },
+        { "type"    => "mobile-lvn",
+          "msisdn"  => "3584573950812",
+          "country" => "FI",
+          "cost"    => "3.00" },
+        { "type"    => "mobile-lvn",
+          "msisdn"  => "3584573950806",
+          "country" => "FI",
+          "cost"    => "3.00" },
+        { "type"    => "mobile-lvn",
+          "msisdn"  => "3584573950805",
+          "country" => "FI",
+          "cost"    => "3.00" },
+        { "type"    => "mobile-lvn",
+          "msisdn"  => "3584573950804",
+          "country" => "FI",
+          "cost"    => "3.00" },
+        { "type"    => "mobile-lvn",
+          "msisdn"  => "3584573950798",
+          "country" => "FI",
+          "cost"    => "3.00" },
+        { "type"    => "mobile-lvn",
+          "msisdn"  => "3584573950796",
+          "country" => "FI",
+          "cost"    => "3.00" }
+      ],
+      "count"   => 22 }.to_json
   end
 
   before(:each) do
     ::Nexmos.reset!
     ::Nexmos.setup do |c|
-      c.api_key = 'default_key'
+      c.api_key    = 'default_key'
       c.api_secret = 'default_secret'
     end
   end
@@ -72,8 +74,8 @@ describe ::Nexmos::Number do
 
     it 'should return list of numbers' do
       request = stub_request(:get, "https://rest.nexmo.com/number/search?api_key=default_key&api_secret=default_secret&country=FI").
-          with(webmock_default_headers).to_return(:status => 200, :body => finland_numbers_search, :headers => {})
-      res = subject.search(:country => 'FI')
+        with(webmock_default_headers).to_return(:status => 200, :body => finland_numbers_search, :headers => {'Content-Type' => 'application/json'})
+      res     = subject.search(:country => 'FI')
       expect(res).to be_kind_of(::Hash)
       expect(res.success?).to be_truthy
       expect(res['count']).to eq(22)
@@ -95,10 +97,10 @@ describe ::Nexmos::Number do
     it 'should buy number' do
       request = stub_request(:post, "https://rest.nexmo.com/number/buy").
         with(
-          :headers => {'Accept'=>'application/json', 'Content-Type'=>'application/x-www-form-urlencoded', 'User-Agent'=> ::Nexmos.user_agent},
-          :body => {"api_key"=>"default_key", "api_secret"=>"default_secret", "country"=>"FI", "msisdn"=>"3584573950816"}
-        ).to_return(:status => 200, :body => "", :headers => {})
-      res = subject.buy(:country => 'FI', :msisdn => '3584573950816' )
+          :headers => { 'Accept' => 'application/json', 'Content-Type' => 'application/x-www-form-urlencoded', 'User-Agent' => ::Nexmos.user_agent },
+          :body    => { "api_key" => "default_key", "api_secret" => "default_secret", "country" => "FI", "msisdn" => "3584573950816" }
+        ).to_return(:status => 200, :body => "", :headers => {'Content-Type' => 'application/json'})
+      res     = subject.buy(:country => 'FI', :msisdn => '3584573950816')
       expect(res).to be_kind_of(::Hash)
       expect(res.success?).to be_truthy
       expect(request).to have_been_made.once

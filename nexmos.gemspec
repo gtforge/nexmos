@@ -15,7 +15,7 @@ Gem::Specification.new do |gem|
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
-  gem.add_dependency('rash')
+  gem.add_dependency('hashie', '>= 2.1.0')
   gem.add_dependency('faraday')
   gem.add_dependency('faraday_middleware')
   gem.add_dependency('activesupport', '>= 3.0', '<= 5.0')

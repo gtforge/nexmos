@@ -45,7 +45,7 @@ describe ::Nexmos::Account do
               "ranges" => ["35846", "35850"],
               "mtPrice" => "0.05000000"}],
         "name" => "Finland"
-    }
+    }.to_json
   end
 
   let(:prefix_prices) do
@@ -80,7 +80,7 @@ describe ::Nexmos::Account do
              "ranges" => nil,
              "mtPrice" => "0.05000000"}],
          "name" => "Finland"}],
-     }
+     }.to_json
   end
 
   before(:each) do
@@ -97,7 +97,7 @@ describe ::Nexmos::Account do
 
     it 'should return value' do
       request = stub_request(:get, "https://rest.nexmo.com/account/get-balance?api_key=default_key&api_secret=default_secret").
-          with(webmock_default_headers).to_return(:status => 200, :body => {"value" => 4.107}, :headers => {})
+          with(webmock_default_headers).to_return(:status => 200, :body => {"value" => 4.107}.to_json, headers: {'Content-Type' => 'application/json'})
       res = subject.get_balance
       expect(res).to be_kind_of(::Hash)
       expect(res.value).to eq(4.107)
@@ -112,7 +112,7 @@ describe ::Nexmos::Account do
 
     it 'should be success' do
       request = stub_request(:get, "https://rest.nexmo.com/account/get-pricing/outbound?api_key=default_key&api_secret=default_secret&country=FI").
-          with(webmock_default_headers).to_return(:status => 200, :body => finland_prices, :headers => {})
+          with(webmock_default_headers).to_return(:status => 200, :body => finland_prices, :headers => {'Content-Type' => 'application/json'})
       res = subject.get_pricing(:country => 'FI')
       expect(res).to be_kind_of(::Hash)
       expect(res.success?).to be_truthy
@@ -131,7 +131,7 @@ describe ::Nexmos::Account do
 
     it 'should be success' do
       request = stub_request(:get, "https://rest.nexmo.com/account/get-prefix-pricing/outbound?api_key=default_key&api_secret=default_secret&prefix=358").
-          with(webmock_default_headers).to_return(:status => 200, :body => prefix_prices, :headers => {})
+          with(webmock_default_headers).to_return(:status => 200, :body => prefix_prices, :headers => {'Content-Type' => 'application/json'})
       res = subject.get_prefix_pricing(:prefix => '358')
       expect(res).to be_kind_of(::Hash)
       expect(res.success?).to be_truthy
@@ -147,7 +147,7 @@ describe ::Nexmos::Account do
   context '#get_numbers' do
     it 'should return only count on empty numbers' do
       request = stub_request(:get, "https://rest.nexmo.com/account/numbers?api_key=default_key&api_secret=default_secret").
-          with(webmock_default_headers).to_return(:status => 200, :body => {:count => 0}, :headers => {})
+          with(webmock_default_headers).to_return(:status => 200, :body => {:count => 0}.to_json, :headers => {'Content-Type' => 'application/json'})
       res = subject.get_numbers
       expect(res).to be_kind_of(::Hash)
       expect(res.success?).to be_truthy
@@ -157,7 +157,13 @@ describe ::Nexmos::Account do
 
     it 'should return numbers array' do
       request = stub_request(:get, "https://rest.nexmo.com/account/numbers?api_key=default_key&api_secret=default_secret").
-          with(webmock_default_headers).to_return(:status => 200, :body => { "count" => 1,"numbers" => [{"country" => "ES","msisdn" => "34911067000","type" => "landline"}]}, :headers => {})
+          with(webmock_default_headers).to_return(:status => 200,
+                                                  :body => {
+                                                    "count" => 1,
+                                                    "numbers" => [
+                                                      {"country" => "ES","msisdn" => "34911067000","type" => "landline"}
+                                                    ]
+                                                  }.to_json, :headers => {'Content-Type' => 'application/json'})
       res = subject.get_numbers
       expect(res).to be_kind_of(::Hash)
       expect(res.success?).to be_truthy
@@ -176,7 +182,7 @@ describe ::Nexmos::Account do
 
     it 'should success top up' do
       request = stub_request(:get, "https://rest.nexmo.com/account/top-up?api_key=default_key&api_secret=default_secret&trx=test_trx").
-          with(webmock_default_headers).to_return(:status => 200, :body => '', :headers => {})
+          with(webmock_default_headers).to_return(:status => 200, :body => '', :headers => {'Content-Type' => 'application/json'})
       res = subject.top_up :trx => 'test_trx'
       expect(res).to be_kind_of(::Hash)
       expect(res.success?).to be_truthy
