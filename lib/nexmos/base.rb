@@ -78,7 +78,7 @@ module Nexmos
 
       def faraday_options
         {
-          url:     'https://rest.nexmo.com',
+          url:     (self.inspect == 'Nexmos::TextToSpeech') ? 'https://api.nexmo.com' : 'https://rest.nexmo.com',
           headers: {
             accept:     'application/json',
             user_agent: ::Nexmos.user_agent
